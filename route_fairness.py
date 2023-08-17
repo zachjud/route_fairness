@@ -106,7 +106,7 @@ class RouteFairness:
                     pickup_coords, LOCUST_ST_COORDS)
             case "Valley":
                 pickup['path'] = self.geography.navigate(
-                    pickup_coords, LOCUST_ST_COORDS)
+                    pickup_coords, VALLEY_RECYC_COORDS)
             case _:
                 pickup['path'] = {'geometry': None, 'ascent': None,
                                   'descent': None, 'distance': None}

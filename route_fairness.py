@@ -84,6 +84,8 @@ class RouteFairness:
         with open(pickup_table, newline='') as file:
             reader = csv.DictReader(file, delimiter='\t')
             for row in reader:
+                row = {key: value for key,value in row.items()
+                       if key[:7] != "Unnamed" and key != ''}
                 row['difficulty'] = {indicator: 0 for indicator in
                                      self.difficulty_indicators}
                 self.pickup_table[row['id']] = row

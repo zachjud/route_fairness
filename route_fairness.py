@@ -213,6 +213,7 @@ class RouteFairness:
                                 p['street'], route_fairness.pickup_table)
 
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog='Pedal People route fairness system', description='Reads in and \
@@ -220,12 +221,17 @@ if __name__ == '__main__':
         pickup')
     parser.add_argument('routes', help='filename of route table to import')
     parser.add_argument('pickups', help='filename of pickup table to import')
+    parser.add_argument('--print-pickups', action='store_true',
+                        help='print table of pickups and difficulty scores')
+    parser.add_argument('--print-routes', action='store_true',
+                        help='print table of routes and difficulty scores')
     args = parser.parse_args()
 
     route_fairness = RouteFairness(args.routes, args.pickups)
     route_fairness.compute_difficulty('ascent','descent','distance')
 
-    route_fairness.print_route_difficulties()
-    input('Press enter to print pickup difficulties:')
-    route_fairness.print_pickup_difficulites()
-
+    actions = {args.print_routes: route_fairness.print_route_difficulties,
+               args.print_pickups: route_fairness.print_pickup_difficulites}
+    for action in actions:
+        if action:
+            actions[action]()

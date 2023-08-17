@@ -1,0 +1,6 @@
+/__pycache__/
+/docker/data/
+/docker/elevation_cache/
+/docker/graphs/
+/docker/logs/
+/massachusetts.osm.pbf

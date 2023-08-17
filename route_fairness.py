@@ -10,19 +10,19 @@ VALLEY_RECYC_COORDS = (-72.65505552291872, 42.30060518470567)
 
 
 class Geography:
-    """
+    '''
     Performs routing and other geographic computation
-    """
+    '''
 
     def __init__(self):
-        """
+        '''
         Initializes self
-        """
+        '''
         self.client = openrouteservice.Client(
             base_url='http://localhost:8080/ors')
 
     def navigate(self, start, end):
-        """
+        '''
         Finds a path between the points start and end
 
         Arguments:
@@ -36,7 +36,7 @@ class Geography:
                 'ascent': float -- Vertical meters up on path
                 'descent': float -- Vertical meters down on path
                 'distance': float -- Path length in meters
-        """
+        '''
         directions = self.client.directions((start, end), profile=PROFILE,
             format=FORMAT, elevation=True)['features'][0]
         assert len(directions['properties']['segments']) == 1
@@ -49,20 +49,20 @@ class Geography:
 
 
 class RouteFairness:
-    """
+    '''
     Stores information on routes and pickups, provides an interface to collect
     information on route difficulty
-    """
+    '''
 
     def __init__(self, route_table, pickup_table):
-        """
+        '''
         Initializes self
 
         Arguments:
             route_table: str -- the name of the tsv file containing the route
                 table
             pickup_table: 
-        """
+        '''
         self.geography = Geography()
         self.difficulty_indicators = {
             'ascent': (lambda pickup: pickup['path']['ascent'], 'ascent'),
@@ -85,7 +85,7 @@ class RouteFairness:
             reader = csv.DictReader(file, delimiter='\t')
             for row in reader:
                 row = {key: value for key,value in row.items()
-                       if key[:7] != "Unnamed" and key != ''}
+                       if key[:7] != 'Unnamed' and key != ''}
                 row['difficulty'] = {indicator: 0 for indicator in
                                      self.difficulty_indicators}
                 self.pickup_table[row['id']] = row
@@ -95,18 +95,18 @@ class RouteFairness:
 
 
     def get_path(self, pickup):
-        """
+        '''
         Adds path information to pickup['path']
 
         Arguments:
             pickup: dict -- The pickup to add path information to
-        """
+        '''
         pickup_coords = (pickup['longitude'], pickup['latitude'])
         match self.route_table[pickup['route_id']]['destination']:
-            case "Locust":
+            case 'Locust':
                 pickup['path'] = self.geography.navigate(
                     pickup_coords, LOCUST_ST_COORDS)
-            case "Valley":
+            case 'Valley':
                 pickup['path'] = self.geography.navigate(
                     pickup_coords, VALLEY_RECYC_COORDS)
             case _:
@@ -114,7 +114,7 @@ class RouteFairness:
                                   'descent': None, 'distance': None}
 
     def score_pickups(self, *args):
-        """
+        '''
         Computes per pickup difficulty, stores result in pickup['difficulty']
 
         Arguments:
@@ -122,7 +122,7 @@ class RouteFairness:
                 function used to compute the desired difficulty indicator, the
                 indicator function should take a self.pickup_table entry as
                 only argument
-        """
+        '''
         indicators = [self.difficulty_indicators[indicator] for indicator in
                       args]
         for indicator in indicators:
@@ -143,12 +143,12 @@ class RouteFairness:
                 self.pickup_table[id]['difficulty'][indicator[1]] = score
 
     def score_routes(self):
-        """
+        '''
         Computes per route difficulty, stores result in route['difficulty']
 
         Works with existing per pickup difficulty scores, be sure to score
         pickups with score_pickups before calling score_routes
-        """
+        '''
         for id in self.pickup_table:
             pickup = self.pickup_table[id]
             route = self.route_table[pickup['route_id']]
@@ -171,7 +171,7 @@ class RouteFairness:
             del self.route_table[id]
 
     def compute_difficulty(self, *args):
-        """
+        '''
         Computes per pickup and per route difficulty, stores result in
         pickup['difficulty'] and route['difficulty']
 
@@ -180,7 +180,7 @@ class RouteFairness:
                 function used to compute the desired difficulty indicator, the
                 indicator function should take a self.pickup_table entry as
                 only argument
-        """
+        '''
         self.score_pickups(*args)
         self.score_routes()
 
@@ -209,11 +209,11 @@ class RouteFairness:
                                 route_fairness.route_table)
 
     def print_pickup_difficulites(self):
-        self.print_difficulties('pickup name', lambda p: p['house_number']+" "+
+        self.print_difficulties('pickup name', lambda p: p['house_number']+' '+
                                 p['street'], route_fairness.pickup_table)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog='Pedal People route fairness system', description='Reads in and \
         stores information on routes and pickups, returns difficulty per \
@@ -226,6 +226,6 @@ if __name__ == "__main__":
     route_fairness.compute_difficulty('ascent','descent','distance')
 
     route_fairness.print_route_difficulties()
-    input("Press enter to print pickup difficulties:")
+    input('Press enter to print pickup difficulties:')
     route_fairness.print_pickup_difficulites()
 
